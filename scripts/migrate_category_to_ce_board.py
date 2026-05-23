@@ -11,7 +11,7 @@ from speedruncompy import (
     PutRunSettings,
     VarValue,
 )
-from speedruncompy.datatypes.defs import Run
+from speedruncompy.datatypes.defs import Run, VarValues
 
 load_dotenv()
 speedruncompy.api._default.PHPSESSID = os.environ["SRC_PHPSESSID"]
@@ -117,16 +117,17 @@ new_ce_categories = {
     },
 }
 
-async def fetch_runs_for_misc_subcategory(subcategory_name: str) -> tuple[list[Run], dict[str, Player]]:
-    """Fetch all submissions (including obsolete ones) for a given Misc subcategory."""
+async def fetch_submissions_for_category(
+    game_id: str,
+    category_id: str,
+    value_filters: list[VarValues],
+) -> tuple[list[Run], dict[str, Player]]:
+    """Fetch all submissions (including obsolete ones) for a given category"""
     lb = await GetGameLeaderboard2(
-        gameId=alttp_main_board_id,
-        categoryId=mb_misc_category_id,
+        gameId=game_id,
+        categoryId=category_id,
         obsolete=1,
-        values=[{
-            'variableId': mb_misc_sub_categories_variable_id,
-            'valueIds': [mb_misc_sub_categories[subcategory_name]],
-        }]
+        values=value_filters,
     ).perform_all()
     return lb.runList, lb._playerDict
 
@@ -137,21 +138,17 @@ def convert_run_duration_to_runtime_tuple(seconds: float) -> RuntimeTuple:
     minutes, seconds = divmod(remainder, 60)
     return RuntimeTuple(hour=hours, minute=minutes, second=seconds, millisecond=0)
 
-def generate_run_values(ce_category: dict, run_id: str, run_value_ids: list[str]) -> list[VarValue]:
-    bb_variable_id = ce_category['bb_variable_id']
+def generate_lttp_run_values(bb_variable_id: str, bb_count: str, bb_count_to_id_mapping: dict) -> list[VarValue]:
+    """Generate BB count variable value for a run."""
+    return [VarValue(variableId=bb_variable_id, valueId=bb_count_to_id_mapping[bb_count])]
 
-    # Fill in BB count variableId and value if applicable
-    values = []
-    if bb_variable_id is not None:
-        try:
-            bb_count = next(mb_bb_id_to_count_mapping[id] for id in run_value_ids if id in mb_bb_id_to_count_mapping)
-        except StopIteration:
-            raise ValueError(f"No valid bb count variable found in valueIds for run '{run_id}'")
-        values = [VarValue(variableId=bb_variable_id, valueId=ce_category['bb_count_to_id_mapping'][bb_count])]
-
-    return values
-
-def build_run_settings(run: Run, player_names_for_run: list[str], ce_category: dict) -> RunSettings:
+def build_run_settings(
+    board_id: str,
+    category_id: str,
+    runner_names: list[str],
+    run: Run,
+    run_values: list[VarValue],
+) -> RunSettings:
     """
     Map a Run from GetGameLeaderboard2 onto RunSettings object.
 
@@ -164,7 +161,7 @@ def build_run_settings(run: Run, player_names_for_run: list[str], ce_category: d
     - comment -> existing run comment
     - date -> original submission date
     - values -> BB count (if present)
-    - regionId -> region -- Extra param not present in RunSettings, but will be passed on during serialization anyway
+    - regionId -> region (extra param not present in RunSettings, but will be passed on during serialization anyway)
     Data lost:
     - Original verification date
     - Original verifier
@@ -180,9 +177,9 @@ def build_run_settings(run: Run, player_names_for_run: list[str], ce_category: d
         raise ValueError(f"`video` field missing in run '{run.id}'")
 
     return RunSettings(
-        gameId=alttp_ce_board_id,
-        categoryId=ce_category['id'],
-        playerNames=player_names_for_run,
+        gameId=board_id,
+        categoryId=category_id,
+        playerNames=runner_names,
         time=convert_run_duration_to_runtime_tuple(run.time),
         platformId=run.platformId,
         emulator=run.emulator,
@@ -190,54 +187,99 @@ def build_run_settings(run: Run, player_names_for_run: list[str], ce_category: d
         video=run.video,
         comment=run.comment,
         date=run.date,
-        values=generate_run_values(ce_category, run.id, run.valueIds),
+        values=run_values,
         videoState=run.videoState,
     )
 
-async def copy_category_to_ce_board(category_name: str, session_token: str, dry_run: bool = True):
+async def submit_run_to_board(
+    board_id: str,
+    category_id: str,
+    runner_names: list[str],
+    run: Run,
+    run_values: list[VarValue],
+    session_token: str,
+    dry_run: bool = True
+) -> bool:
+    """Submit a single run to the board."""
+    settings = build_run_settings(
+        board_id=board_id,
+        category_id=category_id,
+        runner_names=runner_names,
+        run=run,
+        run_values=run_values,
+    )
+    print(f"Processing run with duration {settings.time} by runner '{runner_names[0]}'")
+
+    if not dry_run:
+        try:
+            result = await PutRunSettings(
+                csrfToken=session_token,
+                settings=settings,
+                autoverify=True,
+            ).perform()
+            print(f"- Successfully created new run: {result}")
+            return True
+        except Exception as exception:
+            print(f"- [Error] Run creation failed: {exception}")
+            return False
+    else:
+        print(f"- Dry run success. Would call PutRunSettings with: {settings}")
+        return True
+
+async def main():
     """Fetch all runs for the given category and copy them to a new category on the CE board."""
+    session = (await GetSession().perform()).session
+    if not session.signedIn:
+        raise RuntimeError("[Error] Not signed in. Set SRC_PHPSESSID in '.env'. See '.env.sample' for instructions.")
+    print(f"Signed in as: {session.user.name}\n")
+
+    # MODIFY THESE WHEN RUNNING SCRIPT / TODO: Accept input from user
+    category_name = defeat_ganon_ram_prep
+    dry_run = True
+
     new_ce_category = new_ce_categories[category_name]
+
     if new_ce_category['id'] == '':
         print(f"[Error] Details for provided category '{category_name}' are incomplete")
         return
 
     print(f"Fetching existing submissions for category '{category_name}'")
-    runs, players = await fetch_runs_for_misc_subcategory(category_name)
-    print(f"Found {len(runs)} submissions (including obsolete).")
-    print()
+    runs, players = await fetch_submissions_for_category(
+        game_id=alttp_main_board_id,
+        category_id=mb_misc_category_id,
+        value_filters=[{
+            'variableId': mb_misc_sub_categories_variable_id,
+            'valueIds': [mb_misc_sub_categories[category_name]],
+        }],
+    )
+    print(f"Found {len(runs)} submissions (including obsolete).\n")
 
     for run in runs:
         player_names_for_run = [players[id].name for id in run.playerIds]
 
-        try:
-            settings = build_run_settings(run, player_names_for_run, new_ce_category)
-        except (ValueError) as e:
-            print(f"[Error] Error generating settings for run '{run.id}': {e}")
-            continue
-
-        run_duration = convert_run_duration_to_runtime_tuple(run.time)
-        print(f"Processing run with duration {run_duration} by runner '{player_names_for_run[0]}'")
-
-        if not dry_run:
+        run_values = []
+        bb_variable_id = new_ce_category['bb_variable_id']
+        if bb_variable_id is not None:
             try:
-                result = await PutRunSettings(
-                    csrfToken=session_token,
-                    settings=settings,
-                    autoverify=True,
-                ).perform()
-                print(f"- Successfully created new run: {result}")
-            except Exception as exception:
-                print(f"- [Error] Run creation failed: {exception}")
-        else:
-            print(f"- Dry run success. Would call PutRunSettings with: {settings}")
+                bb_count = next(mb_bb_id_to_count_mapping[id] for id in run.valueIds if id in mb_bb_id_to_count_mapping)
+            except StopIteration:
+                raise ValueError(f"No valid bb count variable found in valueIds for run '{run.id}'")
 
-async def main():
-    session = (await GetSession().perform()).session
-    if not session.signedIn:
-        raise RuntimeError("[Error] Not signed in. Set SRC_PHPSESSID in '.env'. See '.env.sample' for instructions.")
-    print(f"Signed in as: {session.user.name}")
+            run_values = generate_lttp_run_values(
+                bb_variable_id=bb_variable_id,
+                bb_count=bb_count,
+                bb_count_to_id_mapping=new_ce_category.get('bb_count_to_id_mapping', {}),
+            )
 
-    await copy_category_to_ce_board(defeat_ganon_ram_prep, session.csrfToken, dry_run=True)
+        await submit_run_to_board(
+            board_id=alttp_ce_board_id,
+            category_id=new_ce_category['id'],
+            runner_names=player_names_for_run,
+            run=run,
+            run_values=run_values,
+            session_token=session.csrfToken,
+            dry_run=dry_run,
+        )
 
 if __name__ == "__main__":
     asyncio.run(main())
