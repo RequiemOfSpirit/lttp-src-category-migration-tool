@@ -16,6 +16,7 @@ from config import (
 )
 from lttp_category_migration_tool import (
     fetch_submissions_for_category,
+    build_run_settings,
     generate_lttp_run_values,
     submit_run_to_board,
 )
@@ -67,12 +68,15 @@ async def main():
                 bb_count_to_id_mapping=new_ce_category.get('bb_count_to_id_mapping', {}),
             )
 
-        await submit_run_to_board(
+        run_settings = build_run_settings(
             board_id=ALTTP_CE_BOARD_ID,
             category_id=new_ce_category['id'],
             runner_names=player_names_for_run,
             run=run,
             run_values=run_values,
+        )
+        await submit_run_to_board(
+            run_settings=run_settings,
             session_token=session.csrfToken,
             dry_run=dry_run,
         )

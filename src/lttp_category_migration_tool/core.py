@@ -25,11 +25,7 @@ async def fetch_submissions_for_category(
     return lb.runList, lb._playerDict
 
 # Run settings generation helpers
-def generate_lttp_run_values(
-    bb_variable_id: str,
-    bb_count: str,
-    bb_count_to_id_mapping: dict,
-) -> list[VarValue]:
+def generate_lttp_run_values(bb_variable_id: str, bb_count: str, bb_count_to_id_mapping: dict) -> list[VarValue]:
     """Generate BB count variable value for a run."""
     return [VarValue(variableId=bb_variable_id, valueId=bb_count_to_id_mapping[bb_count])]
 
@@ -89,30 +85,15 @@ def build_run_settings(
         videoState=run.videoState,
     )
 
-async def submit_run_to_board(
-    board_id: str,
-    category_id: str,
-    runner_names: list[str],
-    run: Run,
-    run_values: list[VarValue],
-    session_token: str,
-    dry_run: bool = True,
-) -> bool:
+async def submit_run_to_board(run_settings: RunSettings, session_token: str, dry_run: bool = True) -> bool:
     """Submit a single run to the board."""
-    settings = build_run_settings(
-        board_id=board_id,
-        category_id=category_id,
-        runner_names=runner_names,
-        run=run,
-        run_values=run_values,
-    )
-    print(f"Processing run with duration {settings.time} by runner '{runner_names[0]}'")
+    print(f"Processing run with duration {run_settings.time} by runner '{run_settings.playerNames[0]}'")
 
     if not dry_run:
         try:
             result = await PutRunSettings(
                 csrfToken=session_token,
-                settings=settings,
+                settings=run_settings,
                 autoverify=True,
             ).perform()
             print(f"- Successfully created new run: {result}")
@@ -121,5 +102,5 @@ async def submit_run_to_board(
             print(f"- [Error] Run creation failed: {exception}")
             return False
     else:
-        print(f"- Dry run success. Would call PutRunSettings with: {settings}")
+        print(f"- Dry run success. Would call PutRunSettings with: {run_settings}")
         return True
