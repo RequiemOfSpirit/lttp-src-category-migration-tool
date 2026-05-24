@@ -1,12 +1,8 @@
 import asyncio
 import os
-import sys
 from dotenv import load_dotenv
 import speedruncompy
 from speedruncompy import GetSession
-
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from config import (
     DEFEAT_GANON_RAM_PREP,
@@ -18,7 +14,7 @@ from config import (
     MB_BB_ID_TO_COUNT_MAPPING,
     NEW_CE_CATEGORIES,
 )
-from src.lttp_category_migration_tool import (
+from lttp_category_migration_tool import (
     fetch_submissions_for_category,
     generate_lttp_run_values,
     submit_run_to_board,
