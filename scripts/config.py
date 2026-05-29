@@ -46,7 +46,7 @@ ALTTP_CE_BOARD_ID = 'm1zjyk06'
 # - Add values. Filter GetGameData on variableId to get ids for all added values.
 NEW_CE_CATEGORIES = {
     DEFEAT_GANON_RAM_PREP: {
-        'id': '',
+        'id': 'n2ypzpe2',
         'bb_variable_id': None,
     },
     HUNDO_ITEM_COMPLETION: {

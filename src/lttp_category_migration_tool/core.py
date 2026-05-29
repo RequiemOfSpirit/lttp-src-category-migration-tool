@@ -99,7 +99,12 @@ def build_run_settings(
         videoState=run.videoState,
     )
 
-async def submit_run_to_board(run_settings: RunSettings, session_token: str, dry_run: bool = True) -> bool:
+async def submit_run_to_board(
+    session_token: str,
+    run_settings: RunSettings,
+    should_auto_verify: bool = False,
+    dry_run: bool = True
+):
     """Submit a single run to the board."""
     print(f"Processing run with duration {run_settings.time} by runner '{run_settings.playerNames[0]}'")
 
@@ -108,13 +113,10 @@ async def submit_run_to_board(run_settings: RunSettings, session_token: str, dry
             result = await PutRunSettings(
                 csrfToken=session_token,
                 settings=run_settings,
-                autoverify=True,
+                autoverify=should_auto_verify,
             ).perform()
             print(f"- Successfully created new run: {result}")
-            return True
         except Exception as exception:
             print(f"- [Error] Run creation failed: {exception}")
-            return False
     else:
         print(f"- Dry run success. Would call PutRunSettings with: {run_settings}")
-        return True

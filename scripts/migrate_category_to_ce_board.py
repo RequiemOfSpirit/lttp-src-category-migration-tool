@@ -104,8 +104,9 @@ async def main():
             mod_note=mod_note,
         )
         await submit_run_to_board(
-            run_settings=run_settings,
             session_token=session.csrfToken,
+            run_settings=run_settings,
+            should_auto_verify=True,
             dry_run=DRY_RUN,
         )
 
