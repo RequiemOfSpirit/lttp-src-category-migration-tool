@@ -24,6 +24,10 @@ from lttp_category_migration_tool import (
 load_dotenv()
 speedruncompy.api._default.PHPSESSID = os.environ["SRC_PHPSESSID"]
 
+# Script config. TODO: Maybe accept as input from user?
+TARGET_CATEGORY_NAME = DEFEAT_GANON_RAM_PREP
+DRY_RUN = True
+
 async def main():
     """Fetch all runs for the given category and copy them to a new category on the CE board."""
     session = (await GetSession().perform()).session
@@ -31,22 +35,18 @@ async def main():
         raise RuntimeError("[Error] Not signed in. Set SRC_PHPSESSID in '.env'. See '.env.sample' for instructions.")
     print(f"Signed in as: {session.user.name}\n")
 
-    # MODIFY THESE WHEN RUNNING SCRIPT / TODO: Accept input from user
-    category_name = DEFEAT_GANON_RAM_PREP
-    dry_run = True
-
-    new_ce_category = NEW_CE_CATEGORIES[category_name]
+    new_ce_category = NEW_CE_CATEGORIES[TARGET_CATEGORY_NAME]
     if new_ce_category['id'] == '':
-        print(f"[Error] Details for provided category '{category_name}' are incomplete")
+        print(f"[Error] Details for provided category '{TARGET_CATEGORY_NAME}' are incomplete")
         return
 
-    print(f"Fetching existing submissions for category '{category_name}'")
+    print(f"Fetching existing submissions for category '{TARGET_CATEGORY_NAME}'")
     runs, players = await fetch_submissions_for_category(
         game_id=ALTTP_MAIN_BOARD_ID,
         category_id=MB_MISC_CATEGORY_ID,
         value_filters=[{
             'variableId': MB_MISC_SUB_CATEGORIES_VARIABLE_ID,
-            'valueIds': [MB_MISC_SUB_CATEGORIES[category_name]],
+            'valueIds': [MB_MISC_SUB_CATEGORIES[TARGET_CATEGORY_NAME]],
         }],
     )
     print(f"Found {len(runs)} submissions (including obsolete).\n")
@@ -78,7 +78,7 @@ async def main():
         await submit_run_to_board(
             run_settings=run_settings,
             session_token=session.csrfToken,
-            dry_run=dry_run,
+            dry_run=DRY_RUN,
         )
 
 if __name__ == "__main__":
