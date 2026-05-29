@@ -1,11 +1,13 @@
 """Helper functions for ALTTP category migrations"""
 
+from datetime import datetime, timezone
 from speedruncompy import (
+    GetGameLeaderboard2,
+    GetUserPopoverData,
     Player,
+    PutRunSettings,
     RunSettings,
     RuntimeTuple,
-    GetGameLeaderboard2,
-    PutRunSettings,
     VarValue,
 )
 from speedruncompy.datatypes.defs import Run, VarValues
@@ -23,6 +25,13 @@ async def fetch_submissions_for_category(
         values=value_filters,
     ).perform_all()
     return lb.runList, lb._playerDict
+
+async def fetch_username(user_id: str) -> str:
+    response = await GetUserPopoverData(userId=user_id).perform()
+    return response.user.name
+
+def format_run_verification_date(run_verification_timestamp: int) -> str:
+    return datetime.fromtimestamp(run_verification_timestamp, tz=timezone.utc).strftime('%B %d, %Y at %H:%M UTC')
 
 # Run settings generation helpers
 def generate_lttp_run_values(bb_variable_id: str, bb_count: str, bb_count_to_id_mapping: dict) -> list[VarValue]:
@@ -42,6 +51,7 @@ def build_run_settings(
     runner_names: list[str],
     run: Run,
     run_values: list[VarValue],
+    mod_note: str | None = None,
 ) -> RunSettings:
     """
     Map a Run from GetGameLeaderboard2 onto RunSettings object.
@@ -57,8 +67,8 @@ def build_run_settings(
     - values -> BB count (if present)
     - regionId -> region (extra param not present in RunSettings, but will be passed on during serialization anyway)
     Data lost:
-    - Original verification date
-    - Original verifier
+    - Original verifier (needs to be supplied in mod note)
+    - Original verification date (needs to be supplied in mod note)
     """
     # Make sure required fields are present
     if run.time is None:
@@ -70,6 +80,10 @@ def build_run_settings(
     if run.video is None:
         raise ValueError(f"`video` field missing in run '{run.id}'")
 
+    # Add mod note to run comment if present
+    run_comment_parts = [comment_part for comment_part in [run.comment, mod_note] if comment_part]
+    run_comment = "\n\n".join(run_comment_parts) or None
+
     return RunSettings(
         gameId=board_id,
         categoryId=category_id,
@@ -79,7 +93,7 @@ def build_run_settings(
         emulator=run.emulator,
         regionId=run.regionId,
         video=run.video,
-        comment=run.comment,
+        comment=run_comment,
         date=run.date,
         values=run_values,
         videoState=run.videoState,

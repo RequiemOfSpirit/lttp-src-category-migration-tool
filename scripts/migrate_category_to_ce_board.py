@@ -15,9 +15,11 @@ from config import (
     NEW_CE_CATEGORIES,
 )
 from lttp_category_migration_tool import (
-    fetch_submissions_for_category,
     build_run_settings,
+    fetch_submissions_for_category,
+    fetch_username,
     generate_lttp_run_values,
+    format_run_verification_date,
     submit_run_to_board,
 )
 
@@ -51,9 +53,33 @@ async def main():
     )
     print(f"Found {len(runs)} submissions (including obsolete).\n")
 
+    verifiers = {}
     for run in runs:
-        player_names_for_run = [players[id].name for id in run.playerIds]
+        # Get runner name
+        runner_names = [players[id].name for id in run.playerIds]
 
+        # Get verification details to add to mod note
+        mod_note_parts = ["Mod note: Run moved over from main board."]
+        if run.dateVerified is None or run.verifiedById is None:
+            print(f"[Warning] Run '{run.id}' by runner '{runner_names[0]}' missing verification details")
+
+        if run.verifiedById is not None:
+            if run.verifiedById in verifiers:
+                verifier_name = verifiers[run.verifiedById]
+            elif run.verifiedById in players:
+                verifier_name = players[run.verifiedById].name
+                verifiers[run.verifiedById] = verifier_name
+            else:
+                verifier_name = await fetch_username(run.verifiedById)
+                verifiers[run.verifiedById] = verifier_name
+            mod_note_parts.append(f"Originally verified by {verifier_name}.")
+
+        if run.dateVerified is not None:
+            mod_note_parts.append(f"Original verification date: {format_run_verification_date(run.dateVerified)}.")
+
+        mod_note = ' '.join(mod_note_parts)
+
+        # Generate VarValue list for run
         run_values = []
         bb_variable_id = new_ce_category['bb_variable_id']
         if bb_variable_id is not None:
@@ -68,12 +94,14 @@ async def main():
                 bb_count_to_id_mapping=new_ce_category.get('bb_count_to_id_mapping', {}),
             )
 
+        # Submit run
         run_settings = build_run_settings(
             board_id=ALTTP_CE_BOARD_ID,
             category_id=new_ce_category['id'],
-            runner_names=player_names_for_run,
+            runner_names=runner_names,
             run=run,
             run_values=run_values,
+            mod_note=mod_note,
         )
         await submit_run_to_board(
             run_settings=run_settings,
