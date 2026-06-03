@@ -72,7 +72,7 @@ NEW_CE_CATEGORIES = {
         },
     },
     ANY_PERCENT_NO_OOB: {
-        'id': '',
+        'id': '9kv4ez0k',
         'bb_variable_id': None,
     },
     CANE_OF_BYRNA: {
