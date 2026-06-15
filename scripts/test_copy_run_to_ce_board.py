@@ -4,20 +4,21 @@ from dotenv import load_dotenv
 import speedruncompy
 from speedruncompy import GetSession, GetRun, Player, Run
 
-from config import (ALTTP_CE_BOARD_ID, NEW_CE_CATEGORIES, DEFEAT_GANON_RAM_PREP)
+from config import (ALTTP_CE_BOARD_ID, HUNDO_ITEM_COMPLETION, MB_BB_ID_TO_COUNT_MAPPING, NEW_CE_CATEGORIES)
 from lttp_category_migration_tool import (
     build_run_settings,
     fetch_username,
     format_run_verification_date,
     submit_run_to_board,
 )
+from lttp_category_migration_tool.core import generate_lttp_run_values
 
 load_dotenv()
 speedruncompy.api._default.PHPSESSID = os.environ["SRC_PHPSESSID"]
 
 # Script config
-TEST_RUN_ID = 'z5lpwgey'
-TARGET_CATEGORY_NAME = DEFEAT_GANON_RAM_PREP
+TEST_RUN_ID = 'ydegd1vm' # Use one of your own existing lttp runs here. Delete submission after manual verification.
+TARGET_CATEGORY_NAME = HUNDO_ITEM_COMPLETION
 DRY_RUN = True
 
 async def get_run(run_id: str) -> tuple[Run, dict[str, Player]]:
@@ -55,13 +56,28 @@ async def main():
 
     mod_note = ' '.join(mod_note_parts)
 
+    # Generate VarValue list for run
+    run_values = []
+    bb_variable_id = new_ce_category['bb_variable_id']
+    if bb_variable_id is not None:
+        try:
+            bb_count = next(MB_BB_ID_TO_COUNT_MAPPING[id] for id in run.valueIds if id in MB_BB_ID_TO_COUNT_MAPPING)
+        except StopIteration:
+            raise ValueError(f"No valid bb count variable found in valueIds for run '{run.id}'")
+
+        run_values = generate_lttp_run_values(
+            bb_variable_id=bb_variable_id,
+            bb_count=bb_count,
+            bb_count_to_id_mapping=new_ce_category.get('bb_count_to_id_mapping', {}),
+        )
+
     # Submit run
     run_settings = build_run_settings(
         board_id=ALTTP_CE_BOARD_ID,
         category_id=new_ce_category['id'],
         runner_names=runner_names,
         run=run,
-        run_values=[],
+        run_values=run_values,
         mod_note=mod_note,
     )
     await submit_run_to_board(

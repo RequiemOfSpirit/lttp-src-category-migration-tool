@@ -5,29 +5,29 @@ import speedruncompy
 from speedruncompy import GetSession
 
 from config import (
-    DEFEAT_GANON_RAM_PREP,
-    ALTTP_MAIN_BOARD_ID,
-    MB_MISC_CATEGORY_ID,
-    MB_MISC_SUB_CATEGORIES_VARIABLE_ID,
-    MB_MISC_SUB_CATEGORIES,
     ALTTP_CE_BOARD_ID,
+    ALTTP_MAIN_BOARD_ID,
+    HUNDO_ITEM_COMPLETION,
     MB_BB_ID_TO_COUNT_MAPPING,
+    MB_MISC_CATEGORY_ID,
+    MB_MISC_SUB_CATEGORIES,
+    MB_MISC_SUB_CATEGORIES_VARIABLE_ID,
     NEW_CE_CATEGORIES,
 )
 from lttp_category_migration_tool import (
     build_run_settings,
     fetch_submissions_for_category,
     fetch_username,
-    generate_lttp_run_values,
     format_run_verification_date,
+    generate_lttp_run_values,
     submit_run_to_board,
 )
 
 load_dotenv()
 speedruncompy.api._default.PHPSESSID = os.environ["SRC_PHPSESSID"]
 
-# Script config. TODO: Maybe accept as input from user?
-TARGET_CATEGORY_NAME = DEFEAT_GANON_RAM_PREP
+# Script config: EDIT BEFORE RUNNING SCRIPT
+TARGET_CATEGORY_NAME = HUNDO_ITEM_COMPLETION
 DRY_RUN = True
 
 async def main():
