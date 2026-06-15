@@ -4,8 +4,11 @@ HUNDO_ITEM_COMPLETION = 'hundo_item_completion'
 ANY_PERCENT_NO_OOB = 'any_percent_no_oob'
 CANE_OF_BYRNA = 'cane_of_byrna'
 
-# Source category ids
+# Board ids
 ALTTP_MAIN_BOARD_ID = '9d3rr0dl'
+ALTTP_CE_BOARD_ID = 'm1zjyk06'
+
+# Source category ids
 MB_MISC_CATEGORY_ID = 'jdz8nmvd'
 MB_MISC_SUB_CATEGORIES_VARIABLE_ID = 'rn11g4pn'
 MB_MISC_SUB_CATEGORIES = {
@@ -37,14 +40,11 @@ MB_BB_ID_TO_COUNT_MAPPING = {
     'xqko9vd1': '15',
 }
 
-# Target category ids
-ALTTP_CE_BOARD_ID = 'm1zjyk06'
-
-# TODO: Fill this:
-# - Create new category and fill category id in here (id can be found in the URL on the category page)
-# - Create BB variable for category if applicable. Open the new variable and hit save without making any changes.
-#   Read the resulting PutVariableUpdate payload in the network tab to get the variable id and value ids.
+# Target categories
 NEW_CE_CATEGORIES = {
+    # - Create new category and fill category id in here (id can be found in the URL on the category page)
+    # - Create BB variable for category if applicable. Open the new variable and hit save without making any changes.
+    #   Read the resulting PutVariableUpdate payload in the network tab to get the variable id and value ids.
     DEFEAT_GANON_RAM_PREP: {
         'id': 'n2ypzpe2',
         'bb_variable_id': None,
@@ -76,25 +76,25 @@ NEW_CE_CATEGORIES = {
         'bb_variable_id': None,
     },
     CANE_OF_BYRNA: {
-        'id': '',
-        'bb_variable_id': '',
+        'id': '5dwmlogk',
+        'bb_variable_id': 'kn032vdn',
         'bb_count_to_id_mapping': {
-            '0': '',
-            '1': '',
-            '2': '',
-            '3': '',
-            '4': '',
-            '5': '',
-            '6': '',
-            '7': '',
-            '8': '',
-            '9': '',
-            '10': '',
-            '11': '',
-            '12': '',
-            '13': '',
-            '14': '',
-            '15': '',
+            '0': 'qzn979mq',
+            '1': 'lr39w92l',
+            '2': '1dk57njl',
+            '3': 'q8kp73kq',
+            '4': 'qyz9em71',
+            '5': 'ln8967dl',
+            '6': '10vpey5l',
+            '7': 'qj79yogq',
+            '8': 'q65pkw7l',
+            '9': 'lmopje41',
+            '10': '1w49wj5q',
+            '11': 'qox9wg2q',
+            '12': '139pej31',
+            '13': 'qvv9w0wq',
+            '14': 'le25g0zl',
+            '15': 'q5vpemnl',
         },
     },
 }
