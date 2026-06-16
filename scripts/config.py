@@ -3,12 +3,13 @@ DEFEAT_GANON_RAM_PREP = 'defeat_ganon_ram_prep'
 HUNDO_ITEM_COMPLETION = 'hundo_item_completion'
 ANY_PERCENT_NO_OOB = 'any_percent_no_oob'
 CANE_OF_BYRNA = 'cane_of_byrna'
+MIRROR_SHIELD = 'mirror_shield'
 
 # Board ids
 ALTTP_MAIN_BOARD_ID = '9d3rr0dl'
 ALTTP_CE_BOARD_ID = 'm1zjyk06'
 
-# Source category ids
+# Source category details
 MB_MISC_CATEGORY_ID = 'jdz8nmvd'
 MB_MISC_SUB_CATEGORIES_VARIABLE_ID = 'rn11g4pn'
 MB_MISC_SUB_CATEGORIES = {
@@ -16,6 +17,7 @@ MB_MISC_SUB_CATEGORIES = {
     HUNDO_ITEM_COMPLETION: 'rqvd68wq',
     ANY_PERCENT_NO_OOB: 'z1958jyq',
     CANE_OF_BYRNA: '81we5vm1',
+    MIRROR_SHIELD: '8149kreq',
 }
 
 # Main board Blue ball variables
@@ -40,7 +42,7 @@ MB_BB_ID_TO_COUNT_MAPPING = {
     'xqko9vd1': '15',
 }
 
-# Target categories
+# Target category details
 NEW_CE_CATEGORIES = {
     # - Create new category and fill category id in here (id can be found in the URL on the category page)
     # - Create BB variable for category if applicable. Open the new variable and hit save without making any changes.
@@ -98,3 +100,7 @@ NEW_CE_CATEGORIES = {
         },
     },
 }
+
+MB_NMG_CATEGORY_ID = 'wk6jz5rd'
+MB_NMG_SUB_CATEGORIES_VARIABLE_ID = '2lg2368p'
+NEW_MB_MIRROR_SHIELD_SUB_CATEGORY_ID = 'ln89m3nl'

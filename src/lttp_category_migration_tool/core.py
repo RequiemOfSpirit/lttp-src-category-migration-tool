@@ -51,6 +51,7 @@ def build_run_settings(
     runner_names: list[str],
     run: Run,
     run_values: list[VarValue],
+    is_edit: bool = False,
     mod_note: str | None = None,
 ) -> RunSettings:
     """
@@ -85,6 +86,7 @@ def build_run_settings(
     run_comment = "\n\n".join(run_comment_parts) or None
 
     return RunSettings(
+        runId=run.id if is_edit else None,
         gameId=board_id,
         categoryId=category_id,
         playerNames=runner_names,
@@ -115,8 +117,8 @@ async def submit_run_to_board(
                 settings=run_settings,
                 autoverify=should_auto_verify,
             ).perform()
-            print(f"- Successfully created new run: {result}")
+            print(f"- Successfully submitted run: {result}")
         except Exception as exception:
-            print(f"- [Error] Run creation failed: {exception}")
+            print(f"- [Error] Run submission failed: {exception}")
     else:
         print(f"- Dry run success. Would call PutRunSettings with: {run_settings}")
