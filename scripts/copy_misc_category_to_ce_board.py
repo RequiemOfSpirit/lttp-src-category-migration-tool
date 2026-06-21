@@ -31,7 +31,7 @@ TARGET_CATEGORY_NAME = HUNDO_ITEM_COMPLETION
 DRY_RUN = True
 
 async def main():
-    """Fetch all runs for the given category and copy them to a new category on the CE board."""
+    """Fetch all runs for the given Misc category and copy them to a new category on the CE board."""
     session = (await GetSession().perform()).session
     if not session.signedIn:
         raise RuntimeError("[Error] Not signed in. Set SRC_PHPSESSID in '.env'. See '.env.sample' for instructions.")
