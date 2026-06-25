@@ -9,7 +9,7 @@ MIRROR_SHIELD = 'mirror_shield'
 ALTTP_MAIN_BOARD_ID = '9d3rr0dl'
 ALTTP_CE_BOARD_ID = 'm1zjyk06'
 
-# Source category details
+## Source category details
 MB_MISC_CATEGORY_ID = 'jdz8nmvd'
 MB_MISC_SUB_CATEGORIES_VARIABLE_ID = 'rn11g4pn'
 MB_MISC_SUB_CATEGORIES = {
@@ -42,7 +42,31 @@ MB_BB_ID_TO_COUNT_MAPPING = {
     'xqko9vd1': '15',
 }
 
-# Target category details
+CE_GDO_CATEGORY_DETAILS = {
+    'id': '7dgn3y72',
+    'bb_variable_id': '789j263n',
+    'bb_id_to_count_mapping': {
+        '0q5pw2ml': '0',
+        '5le9wy6q': '1',
+        'gq7jr3yq': '2',
+        'klr62w2l': '3',
+        '0q5epxnq': '4',
+        'gq7pxxpq': '5',
+        'xqk33m91': '6',
+        '013465rl': '7',
+        'qj7rkn0q': '8',
+        'q8kpzjkq': '9',
+        'qyz94d71': '10',
+        'ln893pdl': '11',
+        '10vp7g5l': '12',
+        'qj79dvgq': '13',
+        'q65p7n7l': '14',
+        'lmopnv41': '15',
+    },
+}
+
+## Target category details
+# New CE categories
 NEW_CE_CATEGORIES = {
     # - Create new category and fill category id in here (id can be found in the URL on the category page)
     # - Create BB variable for category if applicable. Open the new variable and hit save without making any changes.
@@ -101,6 +125,29 @@ NEW_CE_CATEGORIES = {
     },
 }
 
+# Main board config for new categories
 MB_NMG_CATEGORY_ID = 'wk6jz5rd'
 MB_NMG_SUB_CATEGORIES_VARIABLE_ID = '2lg2368p'
+MB_BB_COUNT_TO_ID_MAPPING = {
+    # '-': 'gq7298p1',
+    '0': '810604o1',
+    '1': '9qj2w371',
+    '2': 'jq6vydv1',
+    '3': '5lm2858q',
+    '4': '81w7eymq',
+    '5': 'zqojm451',
+    '6': '013xwgr1',
+    '7': 'rqvx68rl',
+    '8': '5len3jml',
+    '9': '0q54xr7l',
+    '10': '4lxg0n3q',
+    '11': '8149kzeq',
+    '12': 'z19x5ny1',
+    '13': 'p129o7dl',
+    '14': '81pe49vl',
+    '15': 'xqko9vd1',
+}
+
+# New main board categories
 NEW_MB_MIRROR_SHIELD_SUB_CATEGORY_ID = 'ln89m3nl'
+NEW_MB_GDO_SUB_CATEGORY_ID = '1w4j55vq'
