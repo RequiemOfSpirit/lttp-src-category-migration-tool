@@ -7,12 +7,12 @@ from speedruncompy import GetSession
 from config import (
     ALTTP_CE_BOARD_ID,
     ALTTP_MAIN_BOARD_ID,
-    HUNDO_ITEM_COMPLETION,
     MB_BB_ID_TO_COUNT_MAPPING,
-    MB_MISC_CATEGORY_ID,
-    MB_MISC_SUB_CATEGORIES,
-    MB_MISC_SUB_CATEGORIES_VARIABLE_ID,
+    MB_NMG_CATEGORY_ID,
+    MB_NMG_SUB_CATEGORIES_VARIABLE_ID,
+    MIRROR_SHIELD,
     NEW_CE_CATEGORIES,
+    NEW_MB_MIRROR_SHIELD_SUB_CATEGORY_ID,
 )
 from lttp_category_migration_tool import (
     build_run_settings,
@@ -27,7 +27,10 @@ load_dotenv()
 speedruncompy.api._default.PHPSESSID = os.environ["SRC_PHPSESSID"]
 
 # Script config: EDIT BEFORE RUNNING SCRIPT
-TARGET_CATEGORY_NAME = HUNDO_ITEM_COMPLETION
+SOURCE_CATEGORY_ID = MB_NMG_CATEGORY_ID
+SOURCE_SUB_CATEGORY_VARIABLE_ID = MB_NMG_SUB_CATEGORIES_VARIABLE_ID
+SOURCE_SUB_CATEGORY_ID = NEW_MB_MIRROR_SHIELD_SUB_CATEGORY_ID
+TARGET_CATEGORY_NAME = MIRROR_SHIELD
 DRY_RUN = True
 
 async def main():
@@ -45,10 +48,10 @@ async def main():
     print(f"Fetching existing submissions for category '{TARGET_CATEGORY_NAME}'")
     runs, players = await fetch_submissions_for_category(
         game_id=ALTTP_MAIN_BOARD_ID,
-        category_id=MB_MISC_CATEGORY_ID,
+        category_id=SOURCE_CATEGORY_ID,
         value_filters=[{
-            'variableId': MB_MISC_SUB_CATEGORIES_VARIABLE_ID,
-            'valueIds': [MB_MISC_SUB_CATEGORIES[TARGET_CATEGORY_NAME]],
+            'variableId': SOURCE_SUB_CATEGORY_VARIABLE_ID,
+            'valueIds': [SOURCE_SUB_CATEGORY_ID],
         }],
     )
     print(f"Found {len(runs)} submissions (including obsolete).\n")

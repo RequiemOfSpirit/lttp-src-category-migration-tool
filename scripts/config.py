@@ -123,6 +123,28 @@ NEW_CE_CATEGORIES = {
             '15': 'q5vpemnl',
         },
     },
+    MIRROR_SHIELD: {
+        'id': 'xd1938wk',
+        'bb_variable_id': 'gnxmz56l',
+        'bb_count_to_id_mapping': {
+            '0': 'qoxgr3xq',
+            '1': '139j5mx1',
+            '2': 'qvv0er6q',
+            '3': 'le20m4kl',
+            '4': 'q5vmg52l',
+            '5': 'lx5ke841',
+            '6': '14o67vvq',
+            '7': '192v898q',
+            '8': '12vkxw4q',
+            '9': '1pyzd081',
+            '10': 'qke3m4kq',
+            '11': 'q75or4d1',
+            '12': '1gn6248l',
+            '13': 'qznwx58q',
+            '14': 'lr3dy0ml',
+            '15': '1dkn3y5l',
+        },
+    },
 }
 
 # Main board config for new categories
@@ -149,5 +171,5 @@ MB_BB_COUNT_TO_ID_MAPPING = {
 }
 
 # New main board categories
-NEW_MB_MIRROR_SHIELD_SUB_CATEGORY_ID = 'ln89m3nl'
+NEW_MB_MIRROR_SHIELD_SUB_CATEGORY_ID = 'ln89m3nl' # Moved to CE board after a brief stint under NMG tab on main board
 NEW_MB_GDO_SUB_CATEGORY_ID = '1w4j55vq'
