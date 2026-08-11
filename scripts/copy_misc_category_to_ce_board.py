@@ -91,11 +91,14 @@ async def main():
             except StopIteration:
                 raise ValueError(f"No valid bb count variable found in valueIds for run '{run.id}'")
 
-            run_values = generate_lttp_run_values(
-                bb_variable_id=bb_variable_id,
-                bb_count=bb_count,
-                bb_count_to_id_mapping=new_ce_category.get('bb_count_to_id_mapping', {}),
-            )
+            if bb_count == '-':
+                print(f"[Warning] BB count unknown for run '{run.id}' by runner '{runner_names[0]}'")
+            else:
+                run_values = generate_lttp_run_values(
+                    bb_variable_id=bb_variable_id,
+                    bb_count=bb_count,
+                    bb_count_to_id_mapping=new_ce_category.get('bb_count_to_id_mapping', {}),
+                )
 
         # Submit run
         run_settings = build_run_settings(

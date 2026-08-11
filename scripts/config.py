@@ -23,7 +23,7 @@ MB_MISC_SUB_CATEGORIES = {
 # Main board Blue ball variables
 MB_BB_VARIABLE_ID = 'rn1wzdlj'
 MB_BB_ID_TO_COUNT_MAPPING = {
-    # 'gq7298p1': '-',
+    'gq7298p1': '-',
     '810604o1': '0',
     '9qj2w371': '1',
     'jq6vydv1': '2',
